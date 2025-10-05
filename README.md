@@ -99,7 +99,6 @@ python transformer.py
 ## File Structure
 
 - `transformer.ipynb`: **Main implementation** - Interactive Jupyter notebook with all components
-- `run_transformer.py`: Simple Python script with modular functions and visualization
 - `transformer.py`: Original Python script version
 - `requirements.txt`: Project dependencies
 - `README.md`: This documentation file
