@@ -102,24 +102,22 @@ class RotaryPositionalEmbedding:
 
 
 def scaled_dot_product_attention(Q, K, V, mask=None):
-    """Scaled Dot-Product Attention mechanism"""
     d_k = Q.shape[-1]
-
+    
     # Compute attention scores: Q @ K^T / sqrt(d_k)
-    scores = np.matmul(Q, K.transpose(0, 2, 1)) / np.sqrt(d_k)
-
+    scores = np.matmul(Q, K.transpose(0, 1, 3, 2)) / np.sqrt(d_k)  # Note the transpose axes
+    
     # Apply mask if provided (for causal attention)
     if mask is not None:
-        scores = scores + mask
-
+        scores = scores + mask 
+    
     # Get attention weights via softmax
     attention_weights = softmax(scores, axis=-1)
-
+    
     # Apply attention to values
     output = np.matmul(attention_weights, V)
-
+    
     return output, attention_weights
-
 
 class MultiHeadAttention:
     """Multi-Head Attention with Q, K, V projections"""
@@ -146,30 +144,21 @@ class MultiHeadAttention:
 
     def forward(self, x, mask=None):
         batch_size, seq_len, _ = x.shape
+        
+        Q = np.matmul(x, self.W_q)
+        K = np.matmul(x, self.W_k)
+        V = np.matmul(x, self.W_v)
 
-        # Linear projections and split into heads
-        Q = self.split_heads(np.matmul(x, self.W_q))
-        K = self.split_heads(np.matmul(x, self.W_k))
-        V = self.split_heads(np.matmul(x, self.W_v))
-
-        # Reshape for batch processing
-        Q = Q.reshape(batch_size * self.num_heads, seq_len, self.d_k)
-        K = K.reshape(batch_size * self.num_heads, seq_len, self.d_k)
-        V = V.reshape(batch_size * self.num_heads, seq_len, self.d_k)
-
-        # Apply attention
-        attn_output, attn_weights = scaled_dot_product_attention(Q, K, V, mask)
-
-        # Reshape back
-        attn_output = attn_output.reshape(batch_size, self.num_heads, seq_len, self.d_k)
-        attn_weights = attn_weights.reshape(batch_size, self.num_heads, seq_len, seq_len)
-
-        # Concatenate heads
-        attn_output = attn_output.transpose(0, 2, 1, 3).reshape(batch_size, seq_len, self.d_model)
-
-        # Final projection
-        output = np.matmul(attn_output, self.W_o)
-
+        Q_heads = Q.reshape(batch_size, seq_len, self.num_heads, self.d_k).transpose(0, 2, 1, 3)
+        K_heads = K.reshape(batch_size, seq_len, self.num_heads, self.d_k).transpose(0, 2, 1, 3)
+        V_heads = V.reshape(batch_size, seq_len, self.num_heads, self.d_k).transpose(0, 2, 1, 3)
+        
+        attn_output, attn_weights = scaled_dot_product_attention(Q_heads, K_heads, V_heads, mask)
+        
+        concat_heads = attn_output.transpose(0, 2, 1, 3).reshape(batch_size, seq_len, self.d_model)
+        
+        output = np.matmul(concat_heads, self.W_o)
+        
         return output, attn_weights
 
 
