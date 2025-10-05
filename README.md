@@ -83,26 +83,18 @@ The notebook includes:
 - Bonus feature tests (RoPE, Weight Tying, Attention Visualization)
 - Comprehensive test results
 
-### Option 2: Simple Python Script
 
-Run the modular script directly:
-
-```bash
-python run_transformer.py
-```
-
-This script includes:
-- All modular functions (can be imported and reused)
-- Visualization functions
-- Simple test cases for all three model variants (Standard, RoPE, Weight-Tied)
-
-### Option 3: Original Implementation
+### Option 2: Run Python Script
 
 Alternatively, you can run the original Python script:
 
 ```bash
 python transformer.py
 ```
+
+### Option 3: Open via Google Colab
+
+[Google Colabs](https://colab.research.google.com/drive/1Z20SHd1Mx2aEJW8DyTdpwGgcepirhbB9?usp=sharing) Link
 
 ## File Structure
 
